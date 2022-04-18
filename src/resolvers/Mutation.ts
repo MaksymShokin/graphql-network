@@ -1,5 +1,5 @@
 import { Post } from '@prisma/client';
-import { Context } from '../index';
+import { Context } from '..';
 
 interface PostPayload {
   userErrors: string[];
