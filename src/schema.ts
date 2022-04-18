@@ -1,4 +1,3 @@
-import { Post } from './../node_modules/.prisma/client/index.d';
 import { gql } from 'apollo-server';
 
 export const typeDefs = gql`
@@ -10,6 +9,7 @@ export const typeDefs = gql`
 
   type Mutation {
     postCreate(title: String!, content: String!): PostPayload!
+    postUpdate(id: Int!, title: String, content: String, published: Boolean): PostPayload!
   }
 
   type User {

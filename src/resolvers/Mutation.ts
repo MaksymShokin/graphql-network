@@ -31,5 +31,49 @@ export const Mutation = {
       userErrors: [],
       post
     };
+  },
+  postUpdate: async (
+    parent: any,
+    {
+      id,
+      title,
+      content
+    }: { id: string; title?: string; content?: string; published?: boolean },
+    { prisma }: Context
+  ): Promise<PostPayload> => {
+    if (!title && !content) {
+      return {
+        userErrors: ['invalid input'],
+        post: null
+      };
+    }
+
+    const currentPost = await prisma.post.findUnique({
+      where: {
+        id: +id
+      }
+    });
+
+    if (!currentPost) {
+      return {
+        userErrors: ['updating post not found'],
+        post: null
+      };
+    }
+
+    const post = await prisma.post.update({
+      data: {
+        title,
+        content
+      },
+      where: {
+        id: +id
+      }
+    });
+
+    return {
+      userErrors: [],
+      post
+    };
   }
 };
