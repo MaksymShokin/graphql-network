@@ -1,11 +1,22 @@
-import { ApolloServer, gql } from 'apollo-server';
-import { Query } from './resolvers';
+import { ApolloServer } from 'apollo-server';
+import { Query, Mutation } from './resolvers';
 import { typeDefs } from './schema';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+export interface Context {
+  prisma: typeof prisma;
+}
 
 const server = new ApolloServer({
   typeDefs,
   resolvers: {
-    Query
+    Query,
+    Mutation
+  },
+  context: {
+    prisma
   }
 });
 
