@@ -1,5 +1,6 @@
 import { Post } from '@prisma/client';
 import { Context } from '../..';
+import { checkPostAuth } from '../../utils/checkPostAuth';
 
 interface PostPayload {
   userErrors: string[];
@@ -14,14 +15,14 @@ export const PostMutation = {
   ): Promise<PostPayload> => {
     if (!userId) {
       return {
-        userErrors: ['not authorized'],
+        userErrors: ['User is not authorized'],
         post: null
       };
     }
 
     if (!title || !content) {
       return {
-        userErrors: ['invalid input'],
+        userErrors: ['Input is invalid'],
         post: null
       };
     }
@@ -42,44 +43,28 @@ export const PostMutation = {
   postUpdate: async (
     parent: any,
     {
-      id,
+      postId,
       title,
       content
-    }: { id: string; title?: string; content?: string; published?: boolean },
+    }: {
+      postId: string;
+      title?: string;
+      content?: string;
+      published?: boolean;
+    },
     { prisma, userId }: Context
   ): Promise<PostPayload> => {
     if (!title && !content) {
       return {
-        userErrors: ['invalid input'],
+        userErrors: ['Input is invalid'],
         post: null
       };
     }
 
-    if (!userId) {
-      return {
-        userErrors: ['not authorized'],
-        post: null
-      };
-    }
+    const errors = await checkPostAuth(userId, postId, prisma);
 
-    const currentPost = await prisma.post.findUnique({
-      where: {
-        id: +id
-      }
-    });
-
-    if (currentPost?.authorId !== userId) {
-      return {
-        userErrors: ['not authorized'],
-        post: null
-      };
-    }
-
-    if (!currentPost) {
-      return {
-        userErrors: ['updating post not found'],
-        post: null
-      };
+    if (errors) {
+      return errors;
     }
 
     const post = await prisma.post.update({
@@ -88,7 +73,7 @@ export const PostMutation = {
         content
       },
       where: {
-        id: +id
+        id: +postId
       }
     });
 
@@ -99,39 +84,68 @@ export const PostMutation = {
   },
   postDelete: async (
     parent: any,
-    { id }: { id: string },
+    { postId }: { postId: string },
     { prisma, userId }: Context
   ): Promise<PostPayload> => {
-    if (!userId) {
-      return {
-        userErrors: ['not authorized'],
-        post: null
-      };
-    }
+    const errors = await checkPostAuth(userId, postId, prisma);
 
-    const currentPost = await prisma.post.findUnique({
-      where: {
-        id: +id
-      }
-    });
-
-    if (!currentPost) {
-      return {
-        userErrors: ['deleting post not found'],
-        post: null
-      };
-    }
-
-    if (currentPost?.authorId !== userId) {
-      return {
-        userErrors: ['not authorized'],
-        post: null
-      };
+    if (errors) {
+      return errors;
     }
 
     const post = await prisma.post.delete({
       where: {
-        id: +id
+        id: +postId
+      }
+    });
+
+    return {
+      userErrors: [],
+      post
+    };
+  },
+  postPublish: async (
+    parent: any,
+    { postId }: { postId: string },
+    { prisma, userId }: Context
+  ): Promise<PostPayload> => {
+    const errors = await checkPostAuth(userId, postId, prisma);
+
+    if (errors) {
+      return errors;
+    }
+
+    const post = await prisma.post.update({
+      data: {
+        published: true
+      },
+      where: {
+        id: +postId
+      }
+    });
+
+    return {
+      userErrors: [],
+      post
+    };
+  },
+  postUnpublish: async (
+    parent: any,
+    { postId }: { postId: string },
+    { prisma, userId }: Context
+  ): Promise<PostPayload> => {
+    const errors = await checkPostAuth(userId, postId, prisma);
+
+    if (errors) {
+      return errors;
+    }
+
+    const post = await prisma.post.update({
+      data: {
+        published: false
+      },
+      where: {
+        id: +postId
       }
     });
 

@@ -9,9 +9,16 @@ export const typeDefs = gql`
 
   type Mutation {
     postCreate(title: String!, content: String!): PostPayload!
-    postUpdate(id: ID!, title: String, content: String, published: Boolean): PostPayload!
-    postDelete(id: ID!): PostPayload!
-    signup(email: String!, password: String!, name: String!, bio: String!): UserPayload!
+    postUpdate(postId: ID!, title: String, content: String): PostPayload!
+    postDelete(postId: ID!): PostPayload!
+    postPublish(postId: ID!): PostPayload!
+    postUnpublish(postId: ID!): PostPayload!
+    signup(
+      email: String!
+      password: String!
+      name: String!
+      bio: String!
+    ): UserPayload!
     signin(email: String!, password: String!): UserPayload!
   }
 
