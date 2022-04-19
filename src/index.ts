@@ -2,11 +2,13 @@ import { ApolloServer } from 'apollo-server';
 import { Query, Mutation } from './resolvers';
 import { typeDefs } from './schema';
 import { PrismaClient } from '@prisma/client';
+import { getUserFromToken } from './utils/getUserFromToken';
 
 const prisma = new PrismaClient();
 
 export interface Context {
   prisma: typeof prisma;
+  userId: number | null;
 }
 
 const server = new ApolloServer({
@@ -15,8 +17,13 @@ const server = new ApolloServer({
     Query,
     Mutation
   },
-  context: {
-    prisma
+  context: ({ req }) => {
+    const userId = getUserFromToken(req.headers.authorization)?.userId;
+
+    return {
+      prisma,
+      userId
+    };
   }
 });
 

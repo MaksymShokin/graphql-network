@@ -10,8 +10,15 @@ export const PostMutation = {
   postCreate: async (
     parent: any,
     { title, content }: { title: string; content: string },
-    { prisma }: Context
+    { prisma, userId }: Context
   ): Promise<PostPayload> => {
+    if (!userId) {
+      return {
+        userErrors: ['not authorized'],
+        post: null
+      };
+    }
+
     if (!title || !content) {
       return {
         userErrors: ['invalid input'],
@@ -23,7 +30,7 @@ export const PostMutation = {
       data: {
         title,
         content,
-        authorId: 1
+        authorId: userId
       }
     });
 
