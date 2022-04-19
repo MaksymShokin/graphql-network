@@ -1,12 +1,12 @@
 import { Post } from '@prisma/client';
-import { Context } from '..';
+import { Context } from '../..';
 
 interface PostPayload {
   userErrors: string[];
   post: Post | null;
 }
 
-export const Mutation = {
+export const PostMutation = {
   postCreate: async (
     parent: any,
     { title, content }: { title: string; content: string },
