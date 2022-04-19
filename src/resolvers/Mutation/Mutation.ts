@@ -1,7 +1,8 @@
 import { PostMutation } from './Post';
-import { Post, User } from '@prisma/client';
+import { User } from '@prisma/client';
 import { Context } from '../..';
 import validator from 'validator';
+import bcrypt from 'bcryptjs';
 
 interface UserPayload {
   userErrors: string[];
@@ -51,10 +52,12 @@ export const Mutation = {
       };
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const user = await prisma.user.create({
       data: {
         email,
-        password,
+        password: hashedPassword,
         name
         // profile
       }
