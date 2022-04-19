@@ -1,6 +1,7 @@
 import { PostMutation } from './Post';
 import { Post, User } from '@prisma/client';
 import { Context } from '../..';
+import validator from 'validator';
 
 interface UserPayload {
   userErrors: string[];
@@ -19,6 +20,24 @@ export const Mutation = {
     }: { email: string; password: string; name?: string; bio?: string },
     { prisma }: Context
   ): Promise<UserPayload> => {
+    if (!validator.isEmail(email)) {
+      return {
+        userErrors: ['email is not valid'],
+        user: null
+      };
+    }
+
+    if (
+      !validator.isLength(password, {
+        min: 4
+      })
+    ) {
+      return {
+        userErrors: ['password is too short'],
+        user: null
+      };
+    }
+
     const currentUser = await prisma.user.findUnique({
       where: {
         email
@@ -32,15 +51,11 @@ export const Mutation = {
       };
     }
 
-    const profile = {
-      bio
-    };
-
     const user = await prisma.user.create({
       data: {
         email,
         password,
-        name,
+        name
         // profile
       }
     });
