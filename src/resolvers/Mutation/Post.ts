@@ -46,11 +46,18 @@ export const PostMutation = {
       title,
       content
     }: { id: string; title?: string; content?: string; published?: boolean },
-    { prisma }: Context
+    { prisma, userId }: Context
   ): Promise<PostPayload> => {
     if (!title && !content) {
       return {
         userErrors: ['invalid input'],
+        post: null
+      };
+    }
+
+    if (!userId) {
+      return {
+        userErrors: ['not authorized'],
         post: null
       };
     }
@@ -60,6 +67,13 @@ export const PostMutation = {
         id: +id
       }
     });
+
+    if (currentPost?.authorId !== userId) {
+      return {
+        userErrors: ['not authorized'],
+        post: null
+      };
+    }
 
     if (!currentPost) {
       return {
@@ -86,8 +100,15 @@ export const PostMutation = {
   postDelete: async (
     parent: any,
     { id }: { id: string },
-    { prisma }: Context
+    { prisma, userId }: Context
   ): Promise<PostPayload> => {
+    if (!userId) {
+      return {
+        userErrors: ['not authorized'],
+        post: null
+      };
+    }
+
     const currentPost = await prisma.post.findUnique({
       where: {
         id: +id
@@ -97,6 +118,13 @@ export const PostMutation = {
     if (!currentPost) {
       return {
         userErrors: ['deleting post not found'],
+        post: null
+      };
+    }
+
+    if (currentPost?.authorId !== userId) {
+      return {
+        userErrors: ['not authorized'],
         post: null
       };
     }
