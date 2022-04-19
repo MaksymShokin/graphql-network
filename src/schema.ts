@@ -11,7 +11,7 @@ export const typeDefs = gql`
     postCreate(title: String!, content: String!): PostPayload!
     postUpdate(id: ID!, title: String, content: String, published: Boolean): PostPayload!
     postDelete(id: ID!): PostPayload!
-    signup(email: String!, password: String!, name: String, bio: String): UserPayload!
+    signup(email: String!, password: String!, name: String!, bio: String!): UserPayload!
   }
 
   type User {
@@ -25,7 +25,7 @@ export const typeDefs = gql`
 
   type UserPayload {
     userErrors: [String]!
-    token: String!
+    token: String
   }
 
   type Post {

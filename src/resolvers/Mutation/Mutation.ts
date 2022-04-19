@@ -18,7 +18,7 @@ export const Mutation = {
       password,
       name,
       bio
-    }: { email: string; password: string; name?: string; bio?: string },
+    }: { email: string; password: string; name: string; bio: string },
     { prisma }: Context
   ): Promise<UserPayload> => {
     if (!validator.isEmail(email)) {
@@ -59,9 +59,10 @@ export const Mutation = {
         email,
         password: hashedPassword,
         name
-        // profile
       }
     });
+
+    await prisma.profile.create({ data: { bio, userId: user.id } });
 
     const token = jwt.sign(
       {
