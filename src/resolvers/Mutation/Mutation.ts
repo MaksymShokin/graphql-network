@@ -1,12 +1,12 @@
 import { PostMutation } from './Post';
-import { User } from '@prisma/client';
 import { Context } from '../..';
 import validator from 'validator';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 interface UserPayload {
   userErrors: string[];
-  user: User | null;
+  token: string | null;
 }
 
 export const Mutation = {
@@ -24,7 +24,7 @@ export const Mutation = {
     if (!validator.isEmail(email)) {
       return {
         userErrors: ['email is not valid'],
-        user: null
+        token: null
       };
     }
 
@@ -35,7 +35,7 @@ export const Mutation = {
     ) {
       return {
         userErrors: ['password is too short'],
-        user: null
+        token: null
       };
     }
 
@@ -48,7 +48,7 @@ export const Mutation = {
     if (currentUser) {
       return {
         userErrors: ['this email is already taken'],
-        user: null
+        token: null
       };
     }
 
@@ -63,9 +63,17 @@ export const Mutation = {
       }
     });
 
+    const token = jwt.sign(
+      {
+        userId: user.id
+      },
+      '23h98h29h23',
+      { expiresIn: 360000 }
+    );
+
     return {
       userErrors: [],
-      user
+      token
     };
   }
 };

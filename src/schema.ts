@@ -25,7 +25,7 @@ export const typeDefs = gql`
 
   type UserPayload {
     userErrors: [String]!
-    user: User
+    token: String!
   }
 
   type Post {
