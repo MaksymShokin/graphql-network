@@ -12,6 +12,7 @@ export const typeDefs = gql`
     postUpdate(id: ID!, title: String, content: String, published: Boolean): PostPayload!
     postDelete(id: ID!): PostPayload!
     signup(email: String!, password: String!, name: String!, bio: String!): UserPayload!
+    signin(email: String!, password: String!): UserPayload!
   }
 
   type User {
