@@ -14,5 +14,12 @@ export const Query = {
         id: +userId
       }
     });
+  },
+  profile: (_: any, { userId }: { userId: string }, { prisma }: Context) => {
+    if (!userId) {
+      return null;
+    }
+
+    return prisma.profile.findUnique({ where: { userId: +userId } });
   }
 };
