@@ -18,11 +18,23 @@ export const Query = {
       }
     });
   },
-  profile: (_: any, { userId }: { userId: string }, { prisma }: Context) => {
+  profile: async (
+    _: any,
+    { userId }: { userId: string },
+    { prisma, userId: userIdFromToken }: Context
+  ) => {
     if (!userId) {
       return null;
     }
 
-    return prisma.profile.findUnique({ where: { userId: +userId } });
+    const isUserProfile = userIdFromToken === +userId;
+    const profile = await prisma.profile.findUnique({
+      where: { userId: +userId }
+    });
+
+    return {
+      ...profile,
+      isMyProfile: isUserProfile
+    };
   }
 };
